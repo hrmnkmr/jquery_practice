@@ -5,22 +5,27 @@ $(function () {
   function displayBooks(books) {
     $(".message").remove();
     $(".lists").empty();
-
+  
     console.log(books); // booksオブジェクト全体を確認
-
-    if (books && books.length > 0) {
-      $.each(books, function (index, book) {
+  
+    if (books.items && books.items.length > 0) {
+      $.each(books.items, function (index, book) {
         console.log(book); // 各bookオブジェクトを確認
 
+        // タイトルを取得
         const title = book.title || 'タイトル不明';
+
+        // 著者と出版社の確認
+        console.log(book.creator); // 著者フィールドを確認
+        console.log(book.publisher); // 出版社フィールドを確認
+        
         const author = Array.isArray(book.creator) ? book.creator.join(', ') : book.creator || '著者不明';
         const publisher = book.publisher || '出版社不明';
+
         const link = book.link?.["@id"] || '#'; // リンクがない場合は "#" に設定
-
-
-
+  
         console.log({ title, author, publisher, link }); // 各フィールドを確認
-
+  
         const bookItem = `
           <li class="lists-item">
             <div class="list-inner">
@@ -30,7 +35,7 @@ $(function () {
               <a href="${link}" target="_blank">書籍情報</a>
             </div>
           </li>`;
-          $(".lists").append(bookItem); // 要素を最後に追加
+        $(".lists").append(bookItem); // 要素を最後に追加
       });
     } else {
       $(".lists").before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索してください。</div>');
@@ -57,9 +62,10 @@ $(function () {
 
     $.ajax(settings)
       .done(function (response) {
-        console.log(response); // ここでレスポンス全体を確認
-        const result = response["@graph"]; // レスポンスからデータを取得
-        displayBooks(result); // displayBooksに渡す
+        console.log(JSON.stringify(response, null, 2)); // レスポンスをフォーマットしてコンソールに出力
+        const result = response["@graph"][0]; // "@graph"が配列なら最初のオブジェクトを取得
+        console.log(result); // データ構造を確認
+        displayBooks(result); // "result"に"items"が含まれている
       })
       .fail(function (err) {
         displayError(err);
