@@ -6,26 +6,23 @@ $(function () {
     $(".message").remove();
     $(".lists").empty();
   
+    // デバッグ用のログ
     console.log(books); // booksオブジェクト全体を確認
   
     if (books.items && books.items.length > 0) {
       $.each(books.items, function (index, book) {
-        console.log(book); // 各bookオブジェクトを確認
+        // 各bookオブジェクトを確認
+        console.log(book); 
 
-        // タイトルを取得
+        // タイトル、著者、出版社を取得
         const title = book.title || 'タイトル不明';
-
-        // 著者と出版社の確認
-        console.log(book.creator); // 著者フィールドを確認
-        console.log(book.publisher); // 出版社フィールドを確認
-        
-        const author = Array.isArray(book.creator) ? book.creator.join(', ') : book.creator || '著者不明';
-        const publisher = book.publisher || '出版社不明';
-
+        const author = Array.isArray(book["dc:creator"]) ? book["dc:creator"].join(', ') : book["dc:creator"] || '著者不明';
+        const publisher = book["dc:publisher"] || '出版社不明';
         const link = book.link?.["@id"] || '#'; // リンクがない場合は "#" に設定
-  
-        console.log({ title, author, publisher, link }); // 各フィールドを確認
-  
+
+        // デバッグ用のログ
+        console.log({ title, author, publisher, link });
+
         const bookItem = `
           <li class="lists-item">
             <div class="list-inner">
@@ -62,9 +59,7 @@ $(function () {
 
     $.ajax(settings)
       .done(function (response) {
-        console.log(JSON.stringify(response, null, 2)); // レスポンスをフォーマットしてコンソールに出力
         const result = response["@graph"][0]; // "@graph"が配列なら最初のオブジェクトを取得
-        console.log(result); // データ構造を確認
         displayBooks(result); // "result"に"items"が含まれている
       })
       .fail(function (err) {
