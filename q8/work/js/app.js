@@ -7,21 +7,18 @@ $(function () {
     $(".lists").empty();
   
     // デバッグ用のログ
-    console.log(books); // booksオブジェクト全体を確認
+    console.log(books); 
   
     if (books.items && books.items.length > 0) {
       $.each(books.items, function (index, book) {
         // 各bookオブジェクトを確認
-        console.log(book); 
+        console.log(book);
 
         // タイトル、著者、出版社を取得
         const title = book.title || 'タイトル不明';
-        const author = Array.isArray(book["dc:creator"]) ? book["dc:creator"].join(', ') : book["dc:creator"] || '著者不明';
+        const author = book["dc:creator"] || '著者不明';
         const publisher = book["dc:publisher"] || '出版社不明';
         const link = book.link?.["@id"] || '#'; // リンクがない場合は "#" に設定
-
-        // デバッグ用のログ
-        console.log({ title, author, publisher, link });
 
         const bookItem = `
           <li class="lists-item">
@@ -59,8 +56,8 @@ $(function () {
 
     $.ajax(settings)
       .done(function (response) {
-        const result = response["@graph"][0]; // "@graph"が配列なら最初のオブジェクトを取得
-        displayBooks(result); // "result"に"items"が含まれている
+        const result = response["@graph"][0];
+        displayBooks(result); 
       })
       .fail(function (err) {
         displayError(err);
