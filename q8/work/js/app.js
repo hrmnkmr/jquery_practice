@@ -32,6 +32,7 @@ $(function () {
         $(".lists").append(bookItem); // 要素を最後に追加
       });
     } else {
+      // 検索結果がない場合のエラーメッセージ表示
       $(".lists").before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索してください。</div>');
     }
   }
@@ -55,7 +56,6 @@ $(function () {
     $(".lists").before(`<div class="message">${message}</div>`);
   }
   
-
   function getBooks(searchWord, pageCount) {
     const settings = {
       url: `https://ci.nii.ac.jp/books/opensearch/search?title=${searchWord}&format=json&p=${pageCount}&count=20`,
@@ -74,6 +74,13 @@ $(function () {
 
   $(".search-btn").on("click", function () {
     const newSearchWord = $("#search-input").val();
+    
+    // 検索キーワードが1文字未満の場合、エラーメッセージを表示
+    if (!newSearchWord || newSearchWord.length < 1) {
+      $(".lists").before('<div class="message">検索キーワードが有効ではありません。<br>1文字以上で検索してください。</div>');
+      return; // エラーメッセージを表示した後は処理を中断
+    }
+
     if (newSearchWord !== searchWord) {
       pageCount = 1;
       $(".lists").empty(); // 新しい検索ワードの場合のみ結果をクリア
@@ -81,6 +88,7 @@ $(function () {
     } else {
       pageCount++;
     }
+
     if (searchWord) {
       getBooks(searchWord, pageCount);
     }
