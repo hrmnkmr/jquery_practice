@@ -56,43 +56,45 @@ $(function () {
     $(".lists").before(`<div class="message">${message}</div>`);
   }
   
-  function getBooks(searchWord, pageCount) {
+  function getBooks() {
     const settings = {
       url: `https://ci.nii.ac.jp/books/opensearch/search?title=${searchWord}&format=json&p=${pageCount}&count=20`,
       method: "GET",
     };
-
+  
     $.ajax(settings)
-    .done(function (response) {
-      const result = response["@graph"][0]; // @graphの最初の要素
-      displayBooks(result);  // 直接呼び出し
-    })
-    .fail(function (err) {
-      displayError(err);
-    });
-  }
+      .done(function (response) {
+        const result = response["@graph"][0];
+        displayBooks(result);
+      })
+      .fail(function (err) {
+        displayError(err);
+      });
+  }  
 
   $(".search-btn").on("click", function () {
     const newSearchWord = $("#search-input").val();
     
-    // 検索キーワードが1文字未満の場合、エラーメッセージを表示
-    if (!newSearchWord || newSearchWord.length < 1) {
+    // 検索キーワードが無効な場合、エラーメッセージを表示し、処理を中断
+    if (!newSearchWord) {
+      $(".message").remove(); // 既存のメッセージを削除
       $(".lists").before('<div class="message">検索キーワードが有効ではありません。<br>1文字以上で検索してください。</div>');
       return; // エラーメッセージを表示した後は処理を中断
     }
-
+  
+    // 新しい検索ワードの場合はページをリセット
     if (newSearchWord !== searchWord) {
       pageCount = 1;
-      $(".lists").empty(); // 新しい検索ワードの場合のみ結果をクリア
+      $(".lists").empty(); // 検索結果をクリア
       searchWord = newSearchWord;
     } else {
-      pageCount++;
+      pageCount++; // 同じキーワードなら次のページを取得
     }
-
-    if (searchWord) {
-      getBooks(searchWord, pageCount);
-    }
-  });
+  
+    // API実行
+  getBooks();
+});
+  
 
   $(".reset-btn").on("click", function () {
     pageCount = 1;
