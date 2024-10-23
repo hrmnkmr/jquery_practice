@@ -75,27 +75,25 @@ $(function () {
   $(".search-btn").on("click", function () {
     const newSearchWord = $("#search-input").val();
     
-    // 検索キーワードが無効な場合、エラーメッセージを表示し、処理を中断
-    if (!newSearchWord) {
-      $(".message").remove(); // 既存のメッセージを削除
-      $(".lists").before('<div class="message">検索キーワードが有効ではありません。<br>1文字以上で検索してください。</div>');
-      return; // エラーメッセージを表示した後は処理を中断
-    }
-  
+  // 検索キーワードが無効な場合、エラーメッセージを表示し、処理を中断
+  if (!newSearchWord) {
+    $(".message").remove(); // 既存のメッセージを削除
+    $(".lists").before('<div class="message">検索キーワードが有効ではありません。<br>1文字以上で検索してください。</div>');
+    return; // エラーメッセージを表示した後は処理を中断
+  } else if (newSearchWord !== searchWord) {
     // 新しい検索ワードの場合はページをリセット
-    if (newSearchWord !== searchWord) {
-      pageCount = 1;
-      $(".lists").empty(); // 検索結果をクリア
-      searchWord = newSearchWord;
-    } else {
-      pageCount++; // 同じキーワードなら次のページを取得
-    }
-  
-    // API実行
-  getBooks();
-});
-  
+    pageCount = 1;
+    $(".lists").empty(); // 検索結果をクリア
+    searchWord = newSearchWord;
+  } else {
+    // 同じキーワードなら次のページを取得
+    pageCount++;
+  }
 
+  // API実行
+  getBooks();
+});  
+  
   $(".reset-btn").on("click", function () {
     pageCount = 1;
     searchWord = "";
