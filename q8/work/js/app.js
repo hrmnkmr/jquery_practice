@@ -23,28 +23,42 @@ $(function () {
     }
   }
 
-  // 検索ボタンがクリックされた時の処理
-  $(".search-btn").on("click", function () {
-    searchWord = $("#search-input").val();
-    if (searchWord.trim() === "") { // キーワードが空かどうかをチェック
-      $(".lists").empty();
-      $(".message").remove();
-      $(".lists").before('<div class="message">検索キーワードが有効ではありません。1文字以上で検索して下さい。</div>');
-    } else {
-      pageCount = 1; // 新しい検索ワードでページ番号をリセット
-      $(".lists").empty(); // リセットして結果を表示
-      $.ajax({
-        url: `https://ci.nii.ac.jp/books/opensearch/search?title=${searchWord}&format=json&p=${pageCount}&count=20`,
-        method: "GET"
-      }).done(function (response) {
-        displayResult(response["@graph"][0].items); // 修正
-      }).fail(function (err) {
-        $(".lists").empty();
-        $(".message").remove();
-        $(".lists").before('<div class="message">通信に失敗しました。再度お試しください。</div>');
-      });
-    }
+  let newSearchWord = ""; // 直前の検索ワードを保持
+
+$(".search-btn").on("click", function () {
+  let searchWord = $("#search-input").val().trim(); // 空白を除去
+  $(".message").remove(); // ← 検索時にエラーメッセージを削除
+
+  if (searchWord === "") { 
+    $(".lists").empty();
+    $(".message").remove();
+    $(".lists").before('<div class="message">検索キーワードが有効ではありません。1文字以上で検索して下さい。</div>');
+    return;
+  }
+
+  if (newSearchWord !== searchWord) {
+    // 新しい検索ワードならページ数をリセット
+    pageCount = 1;
+    $(".lists").empty(); 
+  } else {
+    // 同じ検索ワードならページを進める
+    pageCount++;
+  }
+
+  newSearchWord = searchWord; // 検索ワードを更新
+
+  $.ajax({
+    url: `https://ci.nii.ac.jp/books/opensearch/search?title=${searchWord}&format=json&p=${pageCount}&count=20`,
+    method: "GET"
+  }).done(function (response) {
+    displayResult(response["@graph"][0].items);
+  }).fail(function () {
+    $(".lists").empty();
+    $(".message").remove();
+    $(".lists").before('<div class="message">通信に失敗しました。再度お試しください。</div>');
   });
+});
+
 
   // リセットボタンがクリックされた時の処理
   $(".reset-btn").on("click", function () {
